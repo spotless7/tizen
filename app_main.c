@@ -142,7 +142,7 @@ int app_appcore_create(void *data)
                                           // (char *package, char * app_name, app_state_e state,
                                           // app_event_callback_s *callback, void *data)
 	app_create_cb create_cb;	  // The callback function is called before the main loop of application starts. In this callback you can initialize application resources like window creation, data structure, etc. After this callback function returns @c true, the main loop starts up and app_service_cb() is subsequently called. If this callback function returns @c false, the main loop doesn't start and app_terminate_cb() is subsequently called.
-
+	
 	char locale_dir[TIZEN_PATH_MAX] = {0, };
 	int passwdmatch = 0; 
 
@@ -154,27 +154,15 @@ int app_appcore_create(void *data)
 	app_set_appcore_event_cb(app_context); // Check Low Memory, Low Battery, ... 
 
 	snprintf(locale_dir, TIZEN_PATH_MAX, PATH_FMT_LOCALE_DIR, app_context->package); // opt path
-        // locale_dir <- package path (buffer, buffersize, format, contnets)
+        // locale_dir <- package path (buffer, buffersize, format, contents)
 	if (access(locale_dir, R_OK) != 0) { // usr path
 		snprintf(locale_dir, TIZEN_PATH_MAX, PATH_FMT_RO_LOCALE_DIR, app_context->package);
 	}
 	appcore_set_i18n(app_context->app_name, locale_dir); // update lang and region
 
-	app_context_s app_context_passwdapp = {
-                .package = lockscreen,
-                .app_name = lockscreen,
-                .state = APP_STATE_NOT_RUNNING,
-                .callback = callback,
-                .data = app_context->data
-        };	
-
-	// only for lock screen app
-        if(app_context_passwdapp->app_name != lockscreen)
+	if(!strcmp(app_context->package,"org.tizen.calculator") || !strcmp(app_context->package,"org.tizen.calendar"))
 	{
-			//passwdmatch
-      app_appcore_create(app_context_passwdapp); // call lockscreen app
-//		if(passwdmatch == 0) // if password is false
-			//return app_error(APP_ERROR_INVALID_CONTEXT, __FUNCTION__, "PASSWORD IS INVALID");
+		  aul_open_app("org.tizen.lockscreen");
 	}
 
 	create_cb = app_context->callback->create;
@@ -185,11 +173,6 @@ int app_appcore_create(void *data)
 	}
 
 	app_context->state = APP_STATE_RUNNING;
-	
-	// only for lockscreen app
-	//if(app_context_passwdapp->app_name == lockscreen)
-	//	if()//passwdreturn value == 1
-	//		return 1; //for passwdmatch
 
 	return APP_ERROR_NONE;
 }

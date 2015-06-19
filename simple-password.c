@@ -274,14 +274,25 @@ static void __simple_password_check_vconf_value_cb(keynode_t * key, void *data)
 	__simple_password_check_vconf_value(data);
 }
 
-void simple_password_layout_create(void *data)
+void simple_password_layout_create(struct appdata *ad)
 {
-	struct appdata *ad = (struct appdata *)data;
-	if(ad == NULL){
-		return;
-	}
-
+	//Ecore_Evas *ee;
 	Evas_Object *keypad_layout = NULL;
+	if (ad == NULL)
+		return -1;
+	LOGD("[ == %s == ]", __func__);
+
+	//ee = ecore_evas_object_ecore_evas_get(ad->win);
+	//ecore_evas_name_class_set(ee, "LOCK_SCREEN", "LOCK_SCREEN");
+
+	evas_object_show(ad->win);
+	//_set_win_property(ad->win);
+
+	//elm_win_indicator_mode_set(ad->win, ELM_WIN_INDICATOR_SHOW);
+
+	ad->ly_main = _make_top_layout(ad);
+	if (ad->ly_main == NULL)
+		return -1;
 
 	ad->h_password_policy = password_verification_policy_create();
 	password_verification_callback_set(ad->h_password_policy, __simple_password_check_result_cb, ad);
@@ -290,7 +301,7 @@ void simple_password_layout_create(void *data)
 	elm_layout_file_set(ad->ly_simple_password, EDJEFILE, "lock-simple-password");
 	elm_object_part_content_set(ad->ly_main, "sw.phone-lock", ad->ly_simple_password);
 	edje_object_part_text_set(_EDJ(ad->ly_simple_password), "txt.title", _S("IDS_COM_BODY_ENTER_PASSWORD"));
-
+	
 	keypad_layout = elm_layout_add(ad->ly_simple_password);
 	elm_layout_file_set(keypad_layout, EDJEFILE, "lock-keypad-number");
 	elm_object_part_content_set(ad->ly_simple_password, "sw.keypad.number", keypad_layout);
@@ -302,4 +313,9 @@ void simple_password_layout_create(void *data)
 	evas_object_show(keypad_layout);
 	vconf_notify_key_changed(VCONFKEY_SETAPPL_PASSWORD_ATTEMPTS_LEFT_INT, __simple_password_check_vconf_value_cb, ad);
 	__simple_password_check_vconf_value(ad);
+
+	
+
+	return 0;
+
 }

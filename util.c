@@ -27,7 +27,6 @@
 #include "info.h"
 #include "bg.h"
 #include "noti.h"
-#include "simple-password.h"
 
 #define DEFAULT_BG_PATH     "/opt/share/settings/Wallpapers/Home_default.jpg"
 #define SYSTEM_RESUME       "system_wakeup"
@@ -258,7 +257,7 @@ static Eina_Bool _init_widget_cb(void *data)
 
 	elm_win_screen_size_get(ad->win, NULL, NULL, &width, &height);
 
-	ad->slider = _make_slider(ad->ly_main);
+	//ad->slider = _make_slider(ad->ly_main);
 	evas_object_resize(ad->slider, width, SLIDER_RATIO_H * height);
 	evas_object_move(ad->slider, 0, SLIDER_RATIO_Y * height);
 	evas_object_show(ad->slider);
@@ -329,30 +328,10 @@ int _app_create(struct appdata *ad)
 	
 	Evas_Object *keypad_layout = NULL;
 
-	//ad->h_password_policy = password_verification_policy_create();
-	//password_verification_callback_set(ad->h_password_policy, __simple_password_check_result_cb, ad);
-	lockscreen_info_hide(ad);
-	ad->ly_simple_password = elm_layout_add(ad->ly_main);
-	elm_layout_file_set(ad->ly_simple_password, EDJEFILE, "lock-simple-password");
-	elm_object_part_content_set(ad->ly_main, "sw.phone-lock", ad->ly_simple_password);
-	edje_object_part_text_set(_EDJ(ad->ly_simple_password), "txt.title", _S("IDS_COM_BODY_ENTER_PASSWORD"));
-	
-	keypad_layout = elm_layout_add(ad->ly_simple_password);
-	elm_layout_file_set(keypad_layout, EDJEFILE, "lock-keypad-number");
-	elm_object_part_content_set(ad->ly_simple_password, "sw.keypad.number", keypad_layout);
-	edje_object_signal_emit(_EDJ(ad->ly_simple_password), "show,numberkeyboard", "sw.keypad.number");
-	edje_object_signal_callback_add(_EDJ(keypad_layout), "keypad_down_clicked", "*", __simple_password_keypad_process, ad);
-	evas_object_event_callback_add(ad->ly_simple_password, EVAS_CALLBACK_MOUSE_DOWN, __simple_password_mouse_down_cb, ad);
-	evas_object_event_callback_add(ad->ly_simple_password, EVAS_CALLBACK_MOUSE_MOVE, __simple_password_mouse_move_cb, ad);
-	evas_object_event_callback_add(ad->ly_simple_password, EVAS_CALLBACK_MOUSE_UP, __simple_password_mouse_up_cb, ad);
-	evas_object_show(keypad_layout);
-	vconf_notify_key_changed(VCONFKEY_SETAPPL_PASSWORD_ATTEMPTS_LEFT_INT, __simple_password_check_vconf_value_cb, ad);
-	__simple_password_check_vconf_value(ad);
-
-	//ad->event_bg = _get_bg_image(ad->ly_main);
-	/*if (ad->event_bg == NULL)
+	ad->event_bg = _get_bg_image(ad->ly_main);
+	if (ad->event_bg == NULL)
 		return -1;
-	elm_object_part_content_set(ad->ly_main, "sw.bg", ad->event_bg);*/
+	elm_object_part_content_set(ad->ly_main, "sw.bg", ad->event_bg);
 
 	return 0;
 }
